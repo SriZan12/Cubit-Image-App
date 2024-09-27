@@ -7,7 +7,6 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
 import com.example.imageapp.data.local.ImageEntity
-import com.example.imageapp.data.mappers.toImage
 
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.map
@@ -25,8 +24,7 @@ class ImageVM @Inject constructor(
         }
         .cachedIn(viewModelScope)
 
-    /*
-    The .cachedIn(viewModelScope) part is like putting the image info after ImageVM is done watching with it,
-    so that it can be easily retrieved later if needed.
+    /**
+     * @see cachedIn(viewModelScope) is like putting the image info after ImageVM is done watching with it,
      */
 }

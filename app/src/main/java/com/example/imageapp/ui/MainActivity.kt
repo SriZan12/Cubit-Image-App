@@ -29,7 +29,6 @@ class MainActivity : ComponentActivity() {
 
             val imageVM = hiltViewModel<ImageVM>()
 
-
             ImageAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize(), topBar = {
                     TopBar()

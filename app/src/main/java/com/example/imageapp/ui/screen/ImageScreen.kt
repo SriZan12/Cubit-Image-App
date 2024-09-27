@@ -1,6 +1,11 @@
 package com.example.imageapp.ui.screen
 
 import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -35,41 +40,52 @@ fun ImageScreen(imageVM: ImageVM) {
         }
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(all = 8.dp)
+    AnimatedVisibility(
+        visible = true,
+        enter = fadeIn(animationSpec = tween(50)),  // Adjust the duration for smoothness
+        exit = fadeOut(animationSpec = tween(50))
     ) {
-        if (imagesList.loadState.refresh is LoadState.Loading) {
-            CircularProgressIndicator(
-                modifier = Modifier.align(Alignment.Center)
-            )
-        } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                items(
-                    imagesList.itemCount,
-                    key = { index -> imagesList[index]?.id ?: index }) { images ->
-                    val imageItem = imagesList[images]
-                    imageItem?.let { image ->
-                        ImagesFeedItemCompo(
-                            modifier = Modifier.fillMaxWidth(),
-                            imageEntity = image,
-                            onLikeClick = {
-                            },
-                            onDislikeClick = {
-                            },
-                            onCommentClick = {
-                            }
-                        )
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(all = 8.dp)
+        ) {
+            if (imagesList.loadState.refresh is LoadState.Loading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            } else {
+
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .animateContentSize(animationSpec = tween(50)),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    items(
+                        imagesList.itemCount,
+                        key = { index -> imagesList[index]?.id ?: index }) { images ->
+                        val imageItem = imagesList[images]
+                        imageItem?.let { image ->
+                            ImagesFeedItemCompo(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .animateItem(),
+                                imageEntity = image,
+                                onLikeClick = {
+                                },
+                                onDislikeClick = {
+                                },
+                                onCommentClick = {
+                                }
+                            )
+                        }
                     }
-                }
-                item {
-                    if (imagesList.loadState.append is LoadState.Loading) {
-                        CircularProgressIndicator()
+                    item {
+                        if (imagesList.loadState.append is LoadState.Loading) {
+                            CircularProgressIndicator()
+                        }
                     }
                 }
             }

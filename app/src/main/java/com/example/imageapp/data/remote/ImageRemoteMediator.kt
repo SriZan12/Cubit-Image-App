@@ -1,6 +1,5 @@
 package com.example.imageapp.data.remote
 
-import android.util.Log
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadType
 import androidx.paging.PagingState
@@ -9,10 +8,12 @@ import androidx.room.withTransaction
 import com.example.imageapp.data.local.ImageDatabase
 import com.example.imageapp.data.local.ImageEntity
 import com.example.imageapp.data.mappers.toImageEntity
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import okio.IOException
 import retrofit2.HttpException
+
+/**
+ * @see ImageRemoteMediator class will act as the repository.
+ * */
 
 @OptIn(ExperimentalPagingApi::class)
 class ImageRemoteMediator(
