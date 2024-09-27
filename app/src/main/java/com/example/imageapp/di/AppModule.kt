@@ -26,7 +26,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideBeerDatabase(@ApplicationContext context: Context): ImageDatabase {
+    fun provideImagesDatabase(@ApplicationContext context: Context): ImageDatabase {
         return Room.databaseBuilder(
             context,
             ImageDatabase::class.java,
@@ -36,7 +36,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideBeerApi(): ImageApi {
+    fun provideImagesApi(): ImageApi {
         return Retrofit.Builder()
             .baseUrl(ImageApi.BASE_URL)
             .addConverterFactory(MoshiConverterFactory.create())
@@ -46,11 +46,11 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideBeerPager(imageDb: ImageDatabase, imageApi: ImageApi): Pager<Int, ImageEntity> {
+    fun provideImagesPager(imageDb: ImageDatabase, imageApi: ImageApi): Pager<Int, ImageEntity> {
         return Pager(
             config = PagingConfig(pageSize = 20),
             remoteMediator = ImageRemoteMediator(
-                beerDb = imageDb,
+                imagesDB = imageDb,
                 imageApi = imageApi
             ),
             pagingSourceFactory = {

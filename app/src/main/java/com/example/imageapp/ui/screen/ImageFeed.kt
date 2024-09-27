@@ -1,6 +1,7 @@
 package com.example.imageapp.ui.screen
-/*
 
+
+import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -17,7 +18,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
@@ -48,8 +49,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import coil.request.CachePolicy
 import coil.request.ImageRequest
-import com.example.imageapp.data.remote.ImageResponse
+import com.example.imageapp.R
+import com.example.imageapp.data.local.ImageEntity
+import com.example.imageapp.util.DateAndTimeUtils
+import kotlinx.serialization.json.Json
 
 @Composable
 fun ClickableIconWithCounters(
@@ -123,7 +128,9 @@ private fun ImageBeforeLikeDislikeComment(
             state = lazyRowState,
             flingBehavior = snapFling
         ) {
-            items(items = images) { image ->
+            itemsIndexed(items = images) { _, image ->
+                Log.d("IMAGE OF THE APP", "IMAGE OF THE APP${image.toString()}")
+//                val uniqueImageUrl = "${image}?postId=${index}"
                 AsyncImage(
                     modifier = Modifier
                         .fillParentMaxSize()
@@ -133,6 +140,8 @@ private fun ImageBeforeLikeDislikeComment(
                     contentDescription = null,
                     model = ImageRequest.Builder(LocalContext.current).data(image)
                         .crossfade(true)
+                        .memoryCachePolicy(CachePolicy.DISABLED) // Disable memory cache
+                        .diskCachePolicy(CachePolicy.DISABLED)
                         .build()
                 )
             }
@@ -144,12 +153,12 @@ private fun ImageBeforeLikeDislikeComment(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             ClickableIconWithCounters(
-                icon = if (isLiked) Res.drawable.like_filled_icon else Res.drawable.like,
+                icon = if (isLiked) R.drawable.liked else R.drawable.like,
                 iconDescription = "Like",
                 counter = likeCounter,
                 buttonColors = IconButtonDefaults.iconButtonColors().copy(
-                    contentColor = if (isLiked) Color(0xFF3B5999) else brand_gray_color,
-                    disabledContentColor = if (isLiked) Color(0xFF3B5999) else brand_gray_color
+                    contentColor = if (isLiked) Color(0xFF3B5999) else Color.Gray,
+                    disabledContentColor = if (isLiked) Color(0xFF3B5999) else Color.Gray
                 ),
                 onClick = {
                     onLikeClick()
@@ -169,12 +178,12 @@ private fun ImageBeforeLikeDislikeComment(
 
             ClickableIconWithCounters(
                 iconModifier = Modifier.rotate(180f),
-                icon = if (isDisliked) Res.drawable.like_filled_icon else Res.drawable.like,
+                icon = if (isDisliked) R.drawable.liked else R.drawable.like,
                 iconDescription = "Dislike",
                 counter = dislikeCounter,
                 buttonColors = IconButtonDefaults.iconButtonColors().copy(
-                    contentColor = if (isDisliked) Color(0xFF3B5999) else brand_gray_color,
-                    disabledContentColor = if (isDisliked) Color(0xFF3B5999) else brand_gray_color
+                    contentColor = if (isDisliked) Color(0xFF3B5999) else Color.Gray,
+                    disabledContentColor = if (isDisliked) Color(0xFF3B5999) else Color.Gray
                 ),
                 onClick = {
                     onDislikeClick()
@@ -193,7 +202,7 @@ private fun ImageBeforeLikeDislikeComment(
             )
 
             ClickableIconWithCounters(
-                icon = Res.drawable.comments,
+                icon = R.drawable.comment,
                 iconDescription = "Tap to read comments",
                 counter = commentCount,
                 onClick = onCommentClick
@@ -206,14 +215,13 @@ private fun ImageBeforeLikeDislikeComment(
 @Composable
 fun ImagesFeedItemCompo(
     modifier: Modifier = Modifier,
-    imageResponse: ImageResponse,
+    imageEntity: ImageEntity,
     onLikeClick: () -> Unit,
     onDislikeClick: () -> Unit,
     onCommentClick: () -> Unit,
     isLikeEnabled: Boolean = true,
     isDislikeEnabled: Boolean = true,
     cardColor: Color = MaterialTheme.colorScheme.surfaceContainerLowest
-//    cardColor: Color = brand_primary_green_50_color
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -226,32 +234,44 @@ fun ImagesFeedItemCompo(
                 .animateContentSize()
 //            modifier = Modifier.fillMaxWidth().padding(16.dp).animateContentSize()
         ) {
+            Log.d("AVATAR", "AVATAR = ${imageEntity.avatar}")
+
+
             UserProfileWithCropItemTag(
                 modifier = Modifier.fillMaxWidth(),
-                userName = "${imageResponse.creator?.firstName} ${imageResponse.creator?.firstName}"
+                userName = imageEntity.creatorName
                     ?: "User",
-                profilePicture = imageResponse.creator?.avatar ?: "",
-                uploadedDateAndTime = imageResponse.createdAt ?: "",
-                itemName = imageResponse.postText ?: "",
-                itemImage = imageResponse.images?.get(1) ?: imageResponse.images?.get(0),
+                imageEntity = imageEntity,
+                profilePicture = imageEntity.avatar!!,
+                uploadedDateAndTime = imageEntity.createdAt ?: "",
             )
 
-            if (!imageResponse.postText.isNullOrEmpty()) {
+            if (!imageEntity.postText.isNullOrEmpty()) {
                 Text(
-                    modifier = Modifier.padding(bottom = 8.dp, top = 4.dp),
-                    text = imageResponse.postText,
+                    modifier = Modifier.padding(
+                        bottom = 8.dp,
+                        top = 4.dp,
+                        start = 4.dp,
+                        end = 4.dp
+                    ),
+                    text = imageEntity.postText,
                     style = MaterialTheme.typography.bodyLarge,
                     maxLines = 3,
+                    fontSize = 14.sp,
+                    lineHeight = 18.sp,
+                    fontWeight = FontWeight.Normal,
                     overflow = TextOverflow.Ellipsis,
-                    color = ExtendedTheme.colors.customLabelColor.color
+                    color = Color.Black
                 )
             } else {
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
+            val imagesList = Json.decodeFromString<List<String>>(imageEntity.imageUrls ?: "")
+            Log.d("IMAGES LIST = ", "IMAGES LIST = $imagesList")
             ImageBeforeLikeDislikeComment(
                 modifier = Modifier,
-                images = imageResponse.images ?: emptyList(),
+                images = imagesList,
                 likeCount = 0,
                 dislikeCount = 0,
                 ownReaction = "",
@@ -271,9 +291,8 @@ fun ImagesFeedItemCompo(
 private fun UserProfileWithCropItemTag(
     profilePicture: String,
     userName: String,
+    imageEntity: ImageEntity,
     uploadedDateAndTime: String,
-    itemName: String,
-    itemImage: String?,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -287,13 +306,14 @@ private fun UserProfileWithCropItemTag(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            if (profilePicture.isEmpty()) {
+            Log.d("INSIDE PROFILE PIC", "INSIDE PROFILE PIC = ${imageEntity.avatar}")
+            if (imageEntity.avatar.isNullOrEmpty()) {
                 Image(
                     modifier = Modifier
                         .size(52.dp)
                         .clip(CircleShape)
                         .background(Color.White),
-                    painter = painterResource(Res.drawable.dummy_profile2),
+                    painter = painterResource(R.drawable.dummy_profile),
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                 )
@@ -304,11 +324,11 @@ private fun UserProfileWithCropItemTag(
                         .size(52.dp)
                         .clip(CircleShape),
                     contentDescription = null,
-                    model = ImageRequest.Builder(LocalContext.current).data(profilePicture)
+                    model = ImageRequest.Builder(LocalContext.current).data(imageEntity.avatar)
                         .crossfade(true).build(),
-                    placeholder = painterResource(Res.drawable.dummy_profile2),
-                    error = painterResource(Res.drawable.dummy_profile2),
-                    fallback = painterResource(Res.drawable.dummy_profile2)
+                    placeholder = painterResource(R.drawable.dummy_profile),
+                    error = painterResource(R.drawable.dummy_profile),
+                    fallback = painterResource(R.drawable.dummy_profile)
                 )
             }
 
@@ -318,44 +338,16 @@ private fun UserProfileWithCropItemTag(
                 Text(
                     text = userName, style = TextStyle(
                         fontSize = 16.sp, fontWeight = FontWeight.Medium
-                    ), color = ExtendedTheme.colors.customLabelColor.color
+                    ), color = Color.Black
                 )
                 Text(
-                    text = DateAndTimeUtils.getRelativeTime(uploadedDateAndTime),
+                    text = DateAndTimeUtils.getDateFromTimestamp(uploadedDateAndTime),
                     style = TextStyle(
                         fontSize = 12.sp
-                    ), color = brand_neutral_gray_color
+                    ), color = Color.Black
                 )
             }
         }
 
-        if (itemName.isNotEmpty()) {
-            Card(
-                colors = CardDefaults.cardColors().copy(
-                    containerColor = brand_geokrishi_color
-                ), shape = CircleShape
-            ) {
-                Row(
-                    modifier = Modifier.padding(vertical = 8.dp, horizontal = 12.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    if (!itemImage.isNullOrEmpty()) {
-                        AsyncImage(
-                            modifier = Modifier.size(24.dp),
-                            model = itemImage,
-                            contentDescription = null,
-                            contentScale = ContentScale.Crop
-                        )
-                    }
-                    Text(
-                        modifier = Modifier,
-                        text = itemName,
-                        style = MaterialTheme.typography.labelLarge,
-                        color = brand_dark_geokrishi_color
-                    )
-                }
-            }
-        }
     }
-}*/
+}

@@ -1,7 +1,10 @@
 package com.example.imageapp.data.mappers
 
+import android.media.Image
 import com.example.imageapp.data.local.ImageEntity
 import com.example.imageapp.data.remote.ImageResponse
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 
 fun ImageResponse.toImageEntity(): ImageEntity {
@@ -10,7 +13,7 @@ fun ImageResponse.toImageEntity(): ImageEntity {
         creatorName = "${creator?.firstName} ${creator?.lastName}",
         avatar = creator?.avatar,
         postText = postText,
-        imageUrls = images?.get(0) ?: images?.get(1),
+        imageUrls = Json.encodeToString(images),
         createdAt = createdAt
     )
 }

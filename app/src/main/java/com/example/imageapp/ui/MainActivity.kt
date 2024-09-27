@@ -12,9 +12,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.imageapp.components.TopBar
 import com.example.imageapp.ui.screen.ImageScreen
 import com.example.imageapp.ui.theme.ImageAppTheme
+import com.example.imageapp.ui.vm.ImageVM
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -24,8 +27,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
 
-//            val imageVM = hiltViewModel<ImageVM>()
-//            val images = imageVM.imagePagerFlow.collectAsLazyPagingItems()
+            val imageVM = hiltViewModel<ImageVM>()
+
 
             ImageAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize(), topBar = {
@@ -36,7 +39,7 @@ class MainActivity : ComponentActivity() {
                             .fillMaxSize()
                             .padding(paddingValues = innerPadding)
                     ) {
-                        ImageScreen()
+                        ImageScreen(imageVM = imageVM)
                     }
                 }
             }

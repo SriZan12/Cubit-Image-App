@@ -77,16 +77,16 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation(libs.kotlinx.serialization.json)
-    implementation (libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
 
 
     // Coil Compose
-    implementation( libs.coil.compose)
+    implementation(libs.coil.compose)
 
 // Dagger - Hilt
     implementation(libs.hilt.android)
     kapt(libs.dagger.hilt.android.compiler)
-    kapt (libs.androidx.hilt.compiler)
+    kapt(libs.androidx.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
 
 // Paging
@@ -100,7 +100,7 @@ dependencies {
 
 // Room
     implementation(libs.androidx.room.ktx)
-    annotationProcessor(libs.androidx.room.compiler)
+    kapt(libs.androidx.room.compiler)
     implementation(libs.androidx.room.paging)
 
 //    implementation (libs.androidx.multidex)
