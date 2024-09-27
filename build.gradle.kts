@@ -6,6 +6,4 @@ plugins {
     kotlin("plugin.serialization") version "1.9.0" apply false
     alias(libs.plugins.hiltAndroid) apply false
     alias(libs.plugins.compose.compiler) apply false
-//    alias(libs.plugins.kotlinAndroidKsp) apply false
-
 }

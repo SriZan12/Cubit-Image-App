@@ -2,7 +2,6 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.org.jetbrains.kotlin.android)
     alias(libs.plugins.org.jetbrains.kotlin.kapt)
-//    alias(libs.plugins.kotlinAndroidKsp)
     alias(libs.plugins.hiltAndroid)
     alias(libs.plugins.compose.compiler)
 
@@ -43,13 +42,11 @@ android {
     }
     kotlinOptions {
         jvmTarget = "1.8"
-//        jvmTarget = "17"
     }
     buildFeatures {
         compose = true
     }
     composeOptions {
-//        kotlinCompilerExtensionVersion = "1.5.1"
         kotlinCompilerExtensionVersion = "1.5.13"
     }
     packaging {
@@ -102,8 +99,6 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     kapt(libs.androidx.room.compiler)
     implementation(libs.androidx.room.paging)
-
-//    implementation (libs.androidx.multidex)
 
 
 }

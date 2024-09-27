@@ -11,6 +11,12 @@ import com.example.imageapp.data.mappers.toImageEntity
 import okio.IOException
 import retrofit2.HttpException
 
+
+/**
+ * @since The API does not support pagination, but infinite scrolling with pagination is required.
+ * @see `page` below is defined to simulate pagination, allowing efficient loading of large lists.
+ */
+
 /**
  * @see ImageRemoteMediator class will act as the repository.
  * */
@@ -25,55 +31,46 @@ class ImageRemoteMediator(
         loadType: LoadType,
         state: PagingState<Int, ImageEntity>
     ): MediatorResult {
+
+        /**
+         * @since api doesn't need to have query pages, the page is unused.
+         * */
+        val page = when (loadType) {
+            LoadType.REFRESH -> 1
+            LoadType.PREPEND -> return MediatorResult.Success(endOfPaginationReached = true)
+            LoadType.APPEND -> {
+                val lastItem = state.lastItemOrNull() ?: return MediatorResult.Success(
+                    endOfPaginationReached = false
+                )
+                (lastItem.id.trim().toInt()
+                    .div(state.config.pageSize)) + 1 // defining the next page.
+            }
+        }
+
         return try {
-            val loadKey = when (loadType) {
+            val response = imageApi.getImages()
 
-                LoadType.REFRESH -> 1 // starting all over from the initial page
-                LoadType.PREPEND -> {
-                    return MediatorResult.Success(
-                        endOfPaginationReached = true
-                    )
-                }
+            if (response.isSuccessful) {
+                val images = response.body() ?: emptyList()
 
-                LoadType.APPEND -> {
-                    val lastItem = state.lastItemOrNull()
-
-                    if (lastItem == null) {
-                        1
-                    } else {
-                        (lastItem.id?.trim()?.toInt()
-                            ?.div(state.config.pageSize))?.plus(1) // defining nextPage
+                imagesDB.withTransaction {
+                    if (loadType == LoadType.REFRESH) {
+                        imagesDB.dao.clearAll()
                     }
+                    val imageEntities = images.map { it.toImageEntity() } // Map to entity
+                    imagesDB.dao.upsertAll(imageEntities)
                 }
 
-                else -> {}
+                MediatorResult.Success(endOfPaginationReached = images.isEmpty())
+            } else {
+                MediatorResult.Error(Throwable("Network call failed: ${response.code()} ${response.message()}"))
             }
-
-            /*
-            All of these database operations are grouped together into a transaction using imagesDB.withTransaction { },
-            so they will either all be executed successfully or none of them will be.
-             */
-//            val images = imageApi.getImages(page = 1, pageCount = state.config.pageSize)
-            val images = imageApi.getImages()
-            imagesDB.withTransaction {
-                if (loadKey == LoadType.REFRESH) {
-                    imagesDB.dao.clearAll()
-                }
-
-                val imagesEntities =
-                    images.map { it.toImageEntity() } // making a new collection and turning it into the entity to save in Room
-                imagesDB.dao.upsertAll(imagesEntities)
-            }
-
-            MediatorResult.Success(
-                endOfPaginationReached = images.isEmpty() // if the list is empty it should stop paginating
-            )
-        } catch (ioException: IOException) {
-            MediatorResult.Error(ioException)
-        } catch (httpException: HttpException) {
-            MediatorResult.Error(httpException)
+        } catch (e: IOException) {
+            MediatorResult.Error(e)
+        } catch (e: Exception) {
+            MediatorResult.Error(e)
         }
     }
-
 }
+
 

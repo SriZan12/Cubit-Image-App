@@ -2,7 +2,6 @@
 agp = "8.6.1"
 hiltAndroidCompilerVersion = "2.51.1"
 kotlinxSerializationJson = "1.6.0"
-#multidex = "2.0.1"
 org-jetbrains-kotlin-android = "1.8.0"
 coilCompose = "2.3.0"
 kspVersion = "1.9.23-1.0.20"
@@ -59,6 +58,5 @@ retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit
 android-application = { id = "com.android.application", version.ref = "agp" }
 org-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 org-jetbrains-kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "org-jetbrains-kotlin-android" }
-kotlinAndroidKsp = { id = "com.google.devtools.ksp", version.ref ="kspVersion" }
 hiltAndroid = { id = "com.google.dagger.hilt.android", version.ref ="hiltAndroid" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
