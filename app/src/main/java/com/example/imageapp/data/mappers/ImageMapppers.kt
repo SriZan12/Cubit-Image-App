@@ -8,7 +8,6 @@ import kotlinx.serialization.json.Json
 
 fun ImageResponse.toImageEntity(): ImageEntity {
     return ImageEntity(
-        id = id.toString(),
         creatorName = "${creator?.firstName} ${creator?.lastName}",
         avatar = creator?.avatar,
         postText = postText,

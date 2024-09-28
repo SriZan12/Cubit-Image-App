@@ -4,13 +4,15 @@ import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Upsert
-import com.example.imageapp.data.local.ImageEntity
 
 @Dao
 interface ImageDao {
 
     @Upsert
-    suspend fun upsertAll(beers: List<ImageEntity>)
+    suspend fun upsertAll(images: List<ImageEntity>)
+
+    @Query("SELECT * FROM ImageEntity")
+    suspend fun getAllImages(): List<ImageEntity>
 
     @Query("SELECT * FROM ImageEntity")
     fun pagingSource(): PagingSource<Int, ImageEntity>

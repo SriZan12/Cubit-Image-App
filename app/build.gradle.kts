@@ -66,9 +66,12 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.runner)
+    implementation(libs.androidx.junit.ktx)
     testImplementation(libs.junit)
+    testImplementation(libs.androidx.ui.test.junit4.android)
     androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.androidx.espresso.core.v351)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
@@ -100,5 +103,13 @@ dependencies {
     kapt(libs.androidx.room.compiler)
     implementation(libs.androidx.room.paging)
 
+    // **Unit Testing**
+    testImplementation(libs.mockk)
+    testImplementation(libs.androidx.room.testing)
+
+    testImplementation(libs.mockwebserver)
+    testImplementation(libs.okhttp)
+
+    implementation(libs.gson)
 
 }

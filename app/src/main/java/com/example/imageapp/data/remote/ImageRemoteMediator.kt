@@ -42,7 +42,7 @@ class ImageRemoteMediator(
                 val lastItem = state.lastItemOrNull() ?: return MediatorResult.Success(
                     endOfPaginationReached = false
                 )
-                (lastItem.id.trim().toInt()
+                (lastItem.id
                     .div(state.config.pageSize)) + 1 // defining the next page.
             }
         }

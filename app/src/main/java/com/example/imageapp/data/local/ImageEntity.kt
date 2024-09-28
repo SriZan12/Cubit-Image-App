@@ -5,8 +5,8 @@ import androidx.room.PrimaryKey
 
 @Entity
 data class ImageEntity(
-    @PrimaryKey
-    val id: String,
+    @PrimaryKey(autoGenerate = true)
+    val id: Int = 0,
     val creatorName: String?,
     val avatar: String?,
     val postText: String?,

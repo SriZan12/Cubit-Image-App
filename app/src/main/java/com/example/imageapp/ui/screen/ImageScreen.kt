@@ -33,7 +33,6 @@ private fun ImageListCompo(imagesList: LazyPagingItems<ImageEntity>) {
     ) {
 
         val isLoading = imagesList.loadState.refresh is LoadState.Loading
-        val isEmpty = imagesList.itemCount == 0 && !isLoading
 
         LazyColumn(
             modifier = Modifier
