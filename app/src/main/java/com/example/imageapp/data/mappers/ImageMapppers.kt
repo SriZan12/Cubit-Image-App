@@ -1,6 +1,5 @@
 package com.example.imageapp.data.mappers
 
-import android.media.Image
 import com.example.imageapp.data.local.ImageEntity
 import com.example.imageapp.data.remote.ImageResponse
 import kotlinx.serialization.encodeToString

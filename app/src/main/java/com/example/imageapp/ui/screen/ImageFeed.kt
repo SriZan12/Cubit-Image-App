@@ -2,7 +2,10 @@ package com.example.imageapp.ui.screen
 
 
 import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -30,9 +33,11 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -54,76 +59,126 @@ import coil.request.ImageRequest
 import com.example.imageapp.R
 import com.example.imageapp.data.local.ImageEntity
 import com.example.imageapp.util.DateAndTimeUtils
+import com.example.imageapp.util.NumberUtils
 import kotlinx.serialization.json.Json
 
 @Composable
-fun ClickableIconWithCounters(
+fun ImagesFeedItemCompo(
     modifier: Modifier = Modifier,
-    iconModifier: Modifier = Modifier,
-    onClick: () -> Unit,
-    icon: Int,
-    iconDescription: String,
-    counter: Int,
-    enabled: Boolean = true,
-    textColor: Color = MaterialTheme.colorScheme.onSecondaryContainer,
-    buttonColors: IconButtonColors = IconButtonDefaults.iconButtonColors(
-        contentColor = Color.Gray,
-        disabledContentColor = Color.Gray
-    )
-) {
-    Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        IconButton(
-            onClick = onClick,
-            colors = buttonColors,
-            enabled = enabled
-        ) {
-            Icon(
-                modifier = iconModifier.size(23.dp),
-                painter = painterResource(icon),
-                contentDescription = iconDescription
-            )
-        }
-
-        Text(
-            modifier = Modifier.offset(x = -(4).dp),
-            text = counter.toString(),
-            style = MaterialTheme.typography.bodyMedium,
-            color = textColor
-        )
-    }
-}
-
-
-@Composable
-private fun ImageBeforeLikeDislikeComment(
-    images: List<String?>,
-    likeCount: Int,
-    dislikeCount: Int,
+    imageEntity: ImageEntity,
     onLikeClick: () -> Unit,
     onDislikeClick: () -> Unit,
-    ownReaction: String,
-    commentCount: Int,
     onCommentClick: () -> Unit,
+    isLikeEnabled: Boolean = true,
+    isDislikeEnabled: Boolean = true,
+    cardColor: Color = MaterialTheme.colorScheme.surfaceContainerLowest
+) {
+
+    var visibility by remember { mutableStateOf(false) }
+
+    LaunchedEffect(key1 = Unit) {
+        visibility = true
+    }
+
+    AnimatedVisibility(
+        visible = visibility,
+        enter = slideInHorizontally(),
+        exit = slideOutHorizontally(),
+    ) {
+        Card(
+            modifier = modifier
+                .fillMaxWidth(),
+            shape = MaterialTheme.shapes.large,
+            colors = CardDefaults.cardColors().copy(containerColor = cardColor)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                Log.d("AVATAR", "AVATAR = ${imageEntity.avatar}")
+
+                UserProfileItem(
+                    modifier = Modifier.fillMaxWidth(),
+                    userName = imageEntity.creatorName ?: "User",
+                    imageEntity = imageEntity,
+                    profilePicture = imageEntity.avatar ?: "",
+                    uploadedDateAndTime = imageEntity.createdAt ?: "",
+                )
+
+                if (!imageEntity.postText.isNullOrEmpty()) {
+                    Text(
+                        modifier = Modifier.padding(
+                            bottom = 8.dp,
+                            top = 4.dp,
+                            start = 4.dp,
+                            end = 4.dp
+                        ),
+                        text = imageEntity.postText,
+                        style = MaterialTheme.typography.bodyLarge,
+                        maxLines = 3,
+                        fontSize = 14.sp,
+                        lineHeight = 18.sp,
+                        fontWeight = FontWeight.Normal,
+                        overflow = TextOverflow.Ellipsis,
+                        color = Color.Black
+                    )
+                } else {
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+
+                val imagesList = remember(imageEntity.imageUrls) {
+                    Json.decodeFromString<List<String>>(imageEntity.imageUrls ?: "[]")
+                }
+                Log.d("IMAGES LIST = ", "IMAGES LIST = $imagesList")
+
+                FeedImage(
+                    modifier = Modifier,
+                    images = imagesList,
+                    onLikeClick = onLikeClick,
+                    onDislikeClick = onDislikeClick,
+                    isLikeEnabled = isLikeEnabled,
+                    isDislikeEnabled = isDislikeEnabled,
+                    onCommentClick = onCommentClick
+                )
+            }
+        }
+    }
+
+
+}
+
+/**
+ * @see likesCount, disLikesCount and commentsCount are randomly generated.
+ * */
+@Composable
+private fun FeedImage(
     modifier: Modifier = Modifier,
+    images: List<String?>,
+    onLikeClick: () -> Unit,
+    onDislikeClick: () -> Unit,
+    ownReaction: String = "",
+    onCommentClick: () -> Unit,
     isLikeEnabled: Boolean = true,
     isDislikeEnabled: Boolean = true
 ) {
     val lazyRowState = rememberLazyListState()
     val snapFling = rememberSnapFlingBehavior(lazyRowState)
 
+    val randomLikesAndComments =
+        rememberSaveable { NumberUtils.generateRandomLikesAndComments() }
+
     var isLiked by rememberSaveable(ownReaction) { mutableStateOf(ownReaction == "Like") }
     var isDisliked by rememberSaveable(ownReaction) { mutableStateOf(ownReaction == "Dislike") }
 
-    var likeCounter by rememberSaveable(likeCount) { mutableIntStateOf(likeCount) }
-    var dislikeCounter by rememberSaveable(likeCount) { mutableIntStateOf(dislikeCount) }
+    var likeCounter by rememberSaveable { mutableIntStateOf(randomLikesAndComments.first) }
+    var dislikeCounter by rememberSaveable { mutableIntStateOf(randomLikesAndComments.second.first) }
+    val commentCounter = rememberSaveable { randomLikesAndComments.second.second }
 
     Column(modifier = modifier) {
         LazyRow(
             modifier = Modifier
                 .fillMaxSize()
+                .animateContentSize()
                 .height(200.dp),
             state = lazyRowState,
             flingBehavior = snapFling
@@ -204,7 +259,7 @@ private fun ImageBeforeLikeDislikeComment(
             ClickableIconWithCounters(
                 icon = R.drawable.comment,
                 iconDescription = "Tap to read comments",
-                counter = commentCount,
+                counter = commentCounter,  // Use the fixed commentCounter value
                 onClick = onCommentClick
             )
         }
@@ -213,82 +268,7 @@ private fun ImageBeforeLikeDislikeComment(
 
 
 @Composable
-fun ImagesFeedItemCompo(
-    modifier: Modifier = Modifier,
-    imageEntity: ImageEntity,
-    onLikeClick: () -> Unit,
-    onDislikeClick: () -> Unit,
-    onCommentClick: () -> Unit,
-    isLikeEnabled: Boolean = true,
-    isDislikeEnabled: Boolean = true,
-    cardColor: Color = MaterialTheme.colorScheme.surfaceContainerLowest
-) {
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors().copy(containerColor = cardColor)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .animateContentSize()
-//            modifier = Modifier.fillMaxWidth().padding(16.dp).animateContentSize()
-        ) {
-            Log.d("AVATAR", "AVATAR = ${imageEntity.avatar}")
-
-
-            UserProfileWithCropItemTag(
-                modifier = Modifier.fillMaxWidth(),
-                userName = imageEntity.creatorName
-                    ?: "User",
-                imageEntity = imageEntity,
-                profilePicture = imageEntity.avatar!!,
-                uploadedDateAndTime = imageEntity.createdAt ?: "",
-            )
-
-            if (!imageEntity.postText.isNullOrEmpty()) {
-                Text(
-                    modifier = Modifier.padding(
-                        bottom = 8.dp,
-                        top = 4.dp,
-                        start = 4.dp,
-                        end = 4.dp
-                    ),
-                    text = imageEntity.postText,
-                    style = MaterialTheme.typography.bodyLarge,
-                    maxLines = 3,
-                    fontSize = 14.sp,
-                    lineHeight = 18.sp,
-                    fontWeight = FontWeight.Normal,
-                    overflow = TextOverflow.Ellipsis,
-                    color = Color.Black
-                )
-            } else {
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-
-            val imagesList = Json.decodeFromString<List<String>>(imageEntity.imageUrls ?: "")
-            Log.d("IMAGES LIST = ", "IMAGES LIST = $imagesList")
-            ImageBeforeLikeDislikeComment(
-                modifier = Modifier,
-                images = imagesList,
-                likeCount = 0,
-                dislikeCount = 0,
-                ownReaction = "",
-                onLikeClick = onLikeClick,
-                onDislikeClick = onDislikeClick,
-                isLikeEnabled = isLikeEnabled,
-                isDislikeEnabled = isDislikeEnabled,
-                commentCount = 0,
-                onCommentClick = onCommentClick
-            )
-        }
-    }
-}
-
-
-@Composable
-private fun UserProfileWithCropItemTag(
+private fun UserProfileItem(
     profilePicture: String,
     userName: String,
     imageEntity: ImageEntity,
@@ -302,12 +282,11 @@ private fun UserProfileWithCropItemTag(
     ) {
         Row(
             modifier = Modifier.padding(bottom = 6.dp),
-//            modifier = Modifier.padding(top = 4.dp, bottom = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Log.d("INSIDE PROFILE PIC", "INSIDE PROFILE PIC = ${imageEntity.avatar}")
-            if (imageEntity.avatar.isNullOrEmpty()) {
+            if (profilePicture.isEmpty()) {
                 Image(
                     modifier = Modifier
                         .size(52.dp)
@@ -324,7 +303,7 @@ private fun UserProfileWithCropItemTag(
                         .size(52.dp)
                         .clip(CircleShape),
                     contentDescription = null,
-                    model = ImageRequest.Builder(LocalContext.current).data(imageEntity.avatar)
+                    model = ImageRequest.Builder(LocalContext.current).data(profilePicture)
                         .crossfade(true).build(),
                     placeholder = painterResource(R.drawable.dummy_profile),
                     error = painterResource(R.drawable.dummy_profile),
@@ -351,3 +330,45 @@ private fun UserProfileWithCropItemTag(
 
     }
 }
+
+@Composable
+fun ClickableIconWithCounters(
+    modifier: Modifier = Modifier,
+    iconModifier: Modifier = Modifier,
+    onClick: () -> Unit,
+    icon: Int,
+    iconDescription: String,
+    counter: Int,
+    enabled: Boolean = true,
+    textColor: Color = MaterialTheme.colorScheme.onSecondaryContainer,
+    buttonColors: IconButtonColors = IconButtonDefaults.iconButtonColors(
+        contentColor = Color.Gray,
+        disabledContentColor = Color.Gray
+    )
+) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        IconButton(
+            onClick = onClick,
+            colors = buttonColors,
+            enabled = enabled
+        ) {
+            Icon(
+                modifier = iconModifier.size(23.dp),
+                painter = painterResource(icon),
+                contentDescription = iconDescription
+            )
+        }
+
+        Text(
+            modifier = Modifier.offset(x = -(4).dp),
+            text = counter.toString(),
+            style = MaterialTheme.typography.bodyMedium,
+            color = textColor
+        )
+    }
+}
+
+

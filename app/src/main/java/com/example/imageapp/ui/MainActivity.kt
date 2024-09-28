@@ -28,6 +28,7 @@ class MainActivity : ComponentActivity() {
         setContent {
 
             val imageVM = hiltViewModel<ImageVM>()
+            val imagesList = imageVM.imagePagerFlow.collectAsLazyPagingItems()
 
             ImageAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize(), topBar = {
@@ -38,7 +39,7 @@ class MainActivity : ComponentActivity() {
                             .fillMaxSize()
                             .padding(paddingValues = innerPadding)
                     ) {
-                        ImageScreen(imageVM = imageVM)
+                        ImageScreen(imageList = imagesList)
                     }
                 }
             }
