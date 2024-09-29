@@ -3,10 +3,13 @@ agp = "8.6.1"
 espressoCoreVersion = "3.5.1"
 gson = "2.10.1"
 hiltAndroidCompilerVersion = "2.51.1"
+kotlinxCoroutinesTestVersion = "1.9.0"
 kotlinxSerializationJson = "1.6.0"
+mockitoInline = "4.6.1"
 mockk = "1.13.4"
-mockwebserver = "4.10.0"
-okhttp = "4.10.0"
+okhttp = "4.12.0"
+mockwebserver = "4.12.0"
+loggingInterceptor = "4.12.0"
 org-jetbrains-kotlin-android = "1.8.0"
 coilCompose = "2.3.0"
 converterMoshi = "2.9.0"
@@ -20,13 +23,14 @@ espressoCore = "3.6.1"
 lifecycleRuntimeKtx = "2.8.6"
 activityCompose = "1.9.2"
 composeBom = "2024.09.02"
-loggingInterceptor = "5.0.0-alpha.3"
+orgMockitoMockitoCore5 = "4.6.1"
 pagingRuntimeKtx = "3.3.2"
 retrofit = "2.9.0"
 roomKtx = "2.6.1"
 roomPaging = "2.6.1"
 runner = "1.6.2"
 junitKtx = "1.2.1"
+turbine = "0.12.1"
 uiTestJunit4Android = "1.7.2"
 
 [libraries]
@@ -59,15 +63,19 @@ androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-toolin
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTestVersion" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "loggingInterceptor" }
+mockito-inline = { module = "org.mockito:mockito-inline", version.ref = "mockitoInline" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 mockwebserver = { module = "com.squareup.okhttp3:mockwebserver", version.ref = "mockwebserver" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
+org-mockito-mockito-core7 = { module = "org.mockito:mockito-core", version.ref = "orgMockitoMockitoCore5" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 androidx-runner = { group = "androidx.test", name = "runner", version.ref = "runner" }
 androidx-junit-ktx = { group = "androidx.test.ext", name = "junit-ktx", version.ref = "junitKtx" }
 androidx-ui-test-junit4-android = { group = "androidx.compose.ui", name = "ui-test-junit4-android", version.ref = "uiTestJunit4Android" }
+turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

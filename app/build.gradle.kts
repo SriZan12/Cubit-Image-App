@@ -112,4 +112,9 @@ dependencies {
 
     implementation(libs.gson)
 
+    testImplementation (libs.org.mockito.mockito.core7) // For mocking
+    testImplementation (libs.mockito.inline) // For mocking final classes and methods
+    testImplementation (libs.kotlinx.coroutines.test) // For coroutine testing
+    testImplementation (libs.turbine)
+
 }
